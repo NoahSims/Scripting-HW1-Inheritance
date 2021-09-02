@@ -37,6 +37,7 @@ public class Enemy : MonoBehaviour
         if(_impactParticles != null)
         {
             _impactParticles = Instantiate(_impactParticles, transform.position, Quaternion.identity);
+            _impactParticles.Play();
         }
         // audio. TODO - consider object pooling for performance
         if(_impactSound != null)

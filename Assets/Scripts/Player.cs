@@ -7,9 +7,20 @@ public class Player : MonoBehaviour
 {
     TankController _tankController;
     [SerializeField] UIWriter _uiWriter;
+    [SerializeField] Material _bodyMaterial;
+    [SerializeField] Color _defaultBodyColor;
+
+    [SerializeField] AudioClip _deathSound;
 
     [SerializeField] int _maxHealth = 3;
     int _currentHealth;
+
+    [SerializeField] bool _invincibilityActive = false;
+    public bool InvincibilityActive
+    {
+        get => _invincibilityActive;
+        set => _invincibilityActive = value;
+    }
 
     [SerializeField] private int _treasureCount = 0;
     public int TreasureCount
@@ -26,6 +37,7 @@ public class Player : MonoBehaviour
     private void Awake()
     {
         _tankController = GetComponent<TankController>();
+        _defaultBodyColor = _bodyMaterial.color;
     }
 
     
@@ -46,12 +58,15 @@ public class Player : MonoBehaviour
 
     public void DecreaseHealth(int amount)
     {
-        _currentHealth -= amount;
-        Debug.Log("Player's health: " + _currentHealth);
-        _uiWriter.SetUIHealth(_currentHealth);
-        if (_currentHealth <= 0)
+        if (!_invincibilityActive)
         {
-            Kill();
+            _currentHealth -= amount;
+            Debug.Log("Player's health: " + _currentHealth);
+            _uiWriter.SetUIHealth(_currentHealth);
+            if (_currentHealth <= 0)
+            {
+                Kill();
+            }
         }
     }
 
@@ -60,5 +75,19 @@ public class Player : MonoBehaviour
         gameObject.SetActive(false);
         // play particles
         // play sounds
+        if (_deathSound != null)
+        {
+            AudioHelper.PlayClip2D(_deathSound, 1f);
+        }
+    }
+
+    public void SetBodyColor(Color color)
+    {
+        _bodyMaterial.color = color;
+    }
+
+    public void ResetMaterial()
+    {
+        _bodyMaterial.color = _defaultBodyColor;
     }
 }
