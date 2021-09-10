@@ -19,6 +19,11 @@ public class TankController : MonoBehaviour
 
     Rigidbody _rb = null;
 
+    [SerializeField] private GameObject _projectile;
+    [SerializeField] private GameObject _projectileSpawn;
+    [SerializeField] private float _projectileCooldown = .2f;
+    [SerializeField] private bool _isGunOnCooldown = false;
+
     private void Awake()
     {
         _rb = GetComponent<Rigidbody>();
@@ -28,6 +33,10 @@ public class TankController : MonoBehaviour
     {
         MoveTank();
         TurnTank();
+        if(Input.GetAxis("Jump") != 0 && !_isGunOnCooldown)
+        {
+            ShootProjectile();
+        }
     }
 
     public void MoveTank()
@@ -49,5 +58,18 @@ public class TankController : MonoBehaviour
         Quaternion turnOffset = Quaternion.Euler(0, turnAmountThisFrame, 0);
         // apply quaternion to the rigidbody
         _rb.MoveRotation(_rb.rotation * turnOffset);
+    }
+
+    public void ShootProjectile()
+    {
+        Instantiate(_projectile, _projectileSpawn.transform);
+        _isGunOnCooldown = true;
+        StartCoroutine(ProjectileCooldown());
+    }
+    
+    IEnumerator ProjectileCooldown()
+    {
+        yield return new WaitForSeconds(_projectileCooldown);
+        _isGunOnCooldown = false;
     }
 }
