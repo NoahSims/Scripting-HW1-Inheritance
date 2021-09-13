@@ -19,6 +19,7 @@ public class TankController : MonoBehaviour
 
     Rigidbody _rb = null;
 
+    [SerializeField] private GameObject _turret;
     [SerializeField] private GameObject _projectile;
     [SerializeField] private GameObject _projectileSpawn;
     [SerializeField] private float _projectileCooldown = .2f;
@@ -33,8 +34,9 @@ public class TankController : MonoBehaviour
     {
         MoveTank();
         TurnTank();
-        if(Input.GetAxis("Jump") != 0 && !_isGunOnCooldown)
+        if(Input.GetAxis("FireHorizontal") != 0 || Input.GetAxis("FireVertical") != 0)
         {
+            TurnTurret();
             ShootProjectile();
         }
     }
@@ -60,11 +62,48 @@ public class TankController : MonoBehaviour
         _rb.MoveRotation(_rb.rotation * turnOffset);
     }
 
+    private void TurnTurret()
+    {
+        float _tempRotation = 0;
+        float _tempMultiplyer = 1f;
+
+        if(Input.GetAxis("FireHorizontal") != 0 && Input.GetAxis("FireVertical") != 0)
+        {
+            _tempMultiplyer = 0.5f;
+        }
+
+        if(Input.GetAxis("FireHorizontal") < 0)
+        {
+            _tempRotation += 270;
+        }
+        else if(Input.GetAxis("FireHorizontal") > 0)
+        {
+            _tempRotation += 90;
+        }
+
+        if (Input.GetAxis("FireVertical") < 0)
+        {
+            _tempRotation += 180;
+        }
+        else if (Input.GetAxis("FireHorizontal") > 0)
+        {
+            _tempRotation += 0;
+        }
+
+        _tempRotation = _tempRotation * _tempMultiplyer;
+        _turret.transform.rotation = Quaternion.Euler(_turret.transform.rotation.x, _tempRotation, _turret.transform.rotation.z);
+    }
+
     public void ShootProjectile()
     {
-        Instantiate(_projectile, _projectileSpawn.transform);
-        _isGunOnCooldown = true;
-        StartCoroutine(ProjectileCooldown());
+        if (!_isGunOnCooldown)
+        {
+            Debug.Log(_turret.transform.rotation.y);
+            //Quaternion _projectileRotation = Quaternion.Euler(0, _turret.transform.rotation.y, 0);
+            Instantiate(_projectile, _projectileSpawn.transform.position, _turret.transform.rotation);
+            _isGunOnCooldown = true;
+            StartCoroutine(ProjectileCooldown());
+        }
     }
     
     IEnumerator ProjectileCooldown()
