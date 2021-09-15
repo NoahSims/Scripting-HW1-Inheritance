@@ -1528,8 +1528,9 @@ MonoBehaviour:
   _turret: {fileID: 1043774220}
   _projectile: {fileID: 2105991037189225216, guid: acb84e00c83dc6b4786ff0db05ff1994, type: 3}
   _projectileSpawn: {fileID: 1930076020}
-  _projectileCooldown: 0.2
-  _isGunOnCooldown: 0
+  _projectileCooldown: 0.4
+  _projectileParticles: {fileID: 8368145655126054656, guid: e698665102d64334e843aeb213d5318a, type: 3}
+  _projectileSound: {fileID: 8300000, guid: fdaeabb0ff798d749af2a0403f7f09cf, type: 3}
 --- !u!54 &1615622128
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1886,7 +1887,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1930076020}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.01, y: 0.497, z: 0.866}
+  m_LocalPosition: {x: 0.01, y: 0.5, z: 1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1043774221}

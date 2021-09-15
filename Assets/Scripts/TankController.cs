@@ -23,7 +23,9 @@ public class TankController : MonoBehaviour
     [SerializeField] private GameObject _projectile;
     [SerializeField] private GameObject _projectileSpawn;
     [SerializeField] private float _projectileCooldown = .2f;
-    [SerializeField] private bool _isGunOnCooldown = false;
+    private bool _isGunOnCooldown = false;
+    [SerializeField] ParticleSystem _projectileParticles;
+    [SerializeField] AudioClip _projectileSound;
 
     private void Awake()
     {
@@ -65,32 +67,30 @@ public class TankController : MonoBehaviour
     private void TurnTurret()
     {
         float _tempRotation = 0;
-        float _tempMultiplyer = 1f;
 
-        if(Input.GetAxis("FireHorizontal") != 0 && Input.GetAxis("FireVertical") != 0)
+        if (Input.GetAxis("FireVertical") > 0)
         {
-            _tempMultiplyer = 0.5f;
+            if (Input.GetAxis("FireHorizontal") == 0)
+                _tempRotation = 0;
+            else if (Input.GetAxis("FireHorizontal") > 0)
+                _tempRotation = 45;
+            else if (Input.GetAxis("FireHorizontal") < 0)
+                _tempRotation = -45;
         }
-
-        if(Input.GetAxis("FireHorizontal") < 0)
+        else if (Input.GetAxis("FireVertical") < 0)
         {
-            _tempRotation += 270;
-        }
-        else if(Input.GetAxis("FireHorizontal") > 0)
-        {
-            _tempRotation += 90;
-        }
-
-        if (Input.GetAxis("FireVertical") < 0)
-        {
-            _tempRotation += 180;
+            if (Input.GetAxis("FireHorizontal") == 0)
+                _tempRotation = 180;
+            else if (Input.GetAxis("FireHorizontal") > 0)
+                _tempRotation = 135;
+            else if (Input.GetAxis("FireHorizontal") < 0)
+                _tempRotation = 225;
         }
         else if (Input.GetAxis("FireHorizontal") > 0)
-        {
-            _tempRotation += 0;
-        }
+            _tempRotation = 90;
+        else if (Input.GetAxis("FireHorizontal") < 0)
+            _tempRotation = -90;
 
-        _tempRotation = _tempRotation * _tempMultiplyer;
         _turret.transform.rotation = Quaternion.Euler(_turret.transform.rotation.x, _tempRotation, _turret.transform.rotation.z);
     }
 
@@ -102,10 +102,26 @@ public class TankController : MonoBehaviour
             //Quaternion _projectileRotation = Quaternion.Euler(0, _turret.transform.rotation.y, 0);
             Instantiate(_projectile, _projectileSpawn.transform.position, _turret.transform.rotation);
             _isGunOnCooldown = true;
+            ProjectileFeedback();
             StartCoroutine(ProjectileCooldown());
         }
     }
-    
+
+    private void ProjectileFeedback()
+    {
+        // particles
+        if (_projectileParticles != null)
+        {
+            ParticleSystem _particles = Instantiate(_projectileParticles, _projectileSpawn.transform.position, _turret.transform.rotation);
+            _particles.Play();
+        }
+        // audio. TODO - consider Object Pooling for performance
+        if (_projectileSound != null)
+        {
+            AudioHelper.PlayClip2D(_projectileSound, 1f);
+        }
+    }
+
     IEnumerator ProjectileCooldown()
     {
         yield return new WaitForSeconds(_projectileCooldown);

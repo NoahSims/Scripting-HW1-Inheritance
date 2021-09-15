@@ -127,3 +127,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _moveSpeed: 15
   _rb: {fileID: 144198122190225584}
+  _impactParticles: {fileID: 8368145655126054656, guid: bd19f0ad50c6f924fbeb6de0df822a9b, type: 3}
+  _impactSound: {fileID: 8300000, guid: 3cfbbcc7632061343b3530320cb1763f, type: 3}
