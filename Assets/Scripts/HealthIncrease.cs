@@ -8,6 +8,6 @@ public class HealthIncrease : CollectableBase
 
     protected override void Collect(Player player)
     {
-        player.IncreaseHealth(_healthAdded);
+        player.GetComponentInParent<Health>().IncreaseHealth(_healthAdded);
     }
 }

@@ -9,7 +9,14 @@ public class Enemy : MonoBehaviour
     [SerializeField] ParticleSystem _impactParticles;
     [SerializeField] AudioClip _impactSound;
 
-    Rigidbody _rb;
+    [SerializeField] float _moveSpeed = .25f;
+    public float MoveSpeed
+    {
+        get => _moveSpeed;
+        set => _moveSpeed = value;
+    }
+
+    protected Rigidbody _rb;
 
     private void Awake()
     {
@@ -28,7 +35,7 @@ public class Enemy : MonoBehaviour
 
     protected virtual void PlayerImpact(Player player)
     {
-        player.DecreaseHealth(_damageAmount);
+        player.GetComponentInParent<Health>().TakeDamage(_damageAmount);
     }
     
     private void ImpactFeedback()
@@ -36,8 +43,8 @@ public class Enemy : MonoBehaviour
         // particles
         if(_impactParticles != null)
         {
-            _impactParticles = Instantiate(_impactParticles, transform.position, Quaternion.identity);
-            _impactParticles.Play();
+            ParticleSystem _particles = Instantiate(_impactParticles, transform.position, Quaternion.identity);
+            _particles.Play();
         }
         // audio. TODO - consider object pooling for performance
         if(_impactSound != null)
@@ -51,7 +58,7 @@ public class Enemy : MonoBehaviour
         Move();
     }
 
-    public void Move()
+    protected virtual void Move()
     {
 
     }

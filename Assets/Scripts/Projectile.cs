@@ -6,6 +6,7 @@ using UnityEngine;
 public class Projectile : MonoBehaviour
 {
     [SerializeField] private float _moveSpeed = 15f;
+    [SerializeField] private int _damage = 1;
     [SerializeField] private Rigidbody _rb;
     [SerializeField] ParticleSystem _impactParticles;
     [SerializeField] AudioClip _impactSound;
@@ -26,6 +27,8 @@ public class Projectile : MonoBehaviour
         if(other.gameObject.tag != "Player" && other.gameObject.tag != "PlayerProjectile")
         {
             Debug.Log("Collided with" + other.gameObject.name);
+            if(other.GetComponent<IDamageable>() != null)
+                other.GetComponent<IDamageable>().TakeDamage(_damage);
             Feedback();
             Kill();
         }

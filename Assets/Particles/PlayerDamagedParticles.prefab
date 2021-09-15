@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8368145655126054656}
   - component: {fileID: 8368145655126054657}
   m_Layer: 0
-  m_Name: SpeedUpParticles
+  m_Name: PlayerDamagedParticles
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4816,7 +4816,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 6b76736f85a79964ea38feefa408f7b6, type: 2}
+  - {fileID: 2100000, guid: b1310ba89d583b1449ae1c0bf6e5b4f0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

@@ -8,14 +8,14 @@ public class InvincibilityPowerUp : PowerUpBase
 
     protected override void PowerUp(Player player)
     {
-        player.InvincibilityActive = true;
+        player.GetComponentInParent<Health>().IsInvincible = true;
         player.SetBodyColor(_invincibilityMaterial.color);
         Debug.Log("Setting Body Color");
     }
 
     protected override void PowerDown(Player player)
     {
-        player.InvincibilityActive = false;
+        player.GetComponentInParent<Health>().IsInvincible = false;
         player.ResetMaterial();
     }
 }

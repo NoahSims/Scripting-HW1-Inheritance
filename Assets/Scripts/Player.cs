@@ -10,18 +10,6 @@ public class Player : MonoBehaviour
     [SerializeField] Material _bodyMaterial;
     [SerializeField] Color _defaultBodyColor;
 
-    [SerializeField] AudioClip _deathSound;
-
-    [SerializeField] int _maxHealth = 3;
-    int _currentHealth;
-
-    [SerializeField] bool _invincibilityActive = false;
-    public bool InvincibilityActive
-    {
-        get => _invincibilityActive;
-        set => _invincibilityActive = value;
-    }
-
     [SerializeField] private int _treasureCount = 0;
     public int TreasureCount
     {
@@ -43,42 +31,7 @@ public class Player : MonoBehaviour
     
     void Start()
     {
-        _currentHealth = _maxHealth;
-        _uiWriter.SetUIHealth(_currentHealth);
         _uiWriter.SetUITreasure(_treasureCount);
-    }
-
-    public void IncreaseHealth(int amount)
-    {
-        _currentHealth += amount;
-        _currentHealth = Mathf.Clamp(_currentHealth, 0, _maxHealth);
-        Debug.Log("Player's health: " + _currentHealth);
-        _uiWriter.SetUIHealth(_currentHealth);
-    }
-
-    public void DecreaseHealth(int amount)
-    {
-        if (!_invincibilityActive)
-        {
-            _currentHealth -= amount;
-            Debug.Log("Player's health: " + _currentHealth);
-            _uiWriter.SetUIHealth(_currentHealth);
-            if (_currentHealth <= 0)
-            {
-                Kill();
-            }
-        }
-    }
-
-    public void Kill()
-    {
-        gameObject.SetActive(false);
-        // play particles
-        // play sounds
-        if (_deathSound != null)
-        {
-            AudioHelper.PlayClip2D(_deathSound, 1f);
-        }
     }
 
     public void SetBodyColor(Color color)
