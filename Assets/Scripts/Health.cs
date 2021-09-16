@@ -14,6 +14,7 @@ public class Health : MonoBehaviour, IDamageable
         get => _isInvincible;
         set => _isInvincible = value;
     }
+    [SerializeField] private float _iFrameTime = 0;
 
     [SerializeField] ParticleSystem _damageParticles;
     [SerializeField] AudioClip _damageSound;
@@ -37,6 +38,7 @@ public class Health : MonoBehaviour, IDamageable
             else
             {
                 Feedback(_damageParticles, _damageSound);
+                StartCoroutine(IFrames());
             }
         }
     }
@@ -66,5 +68,12 @@ public class Health : MonoBehaviour, IDamageable
         {
             AudioHelper.PlayClip2D(sound, 1f);
         }
+    }
+
+    IEnumerator IFrames()
+    {
+        _isInvincible = true;
+        yield return new WaitForSeconds(_iFrameTime);
+        _isInvincible = false;
     }
 }

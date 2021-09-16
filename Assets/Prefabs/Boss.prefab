@@ -757,7 +757,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1759316761228429538}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -9.51}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1.4, y: 1.4, z: 1.4}
   m_Children:
   - {fileID: 1759316761599103069}
@@ -807,6 +807,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _maxHealth: 3
   _isInvincible: 0
+  _iFrameTime: 0
   _damageParticles: {fileID: 8368145655126054656, guid: d352d5a6c9b044747bd15b92427f9073, type: 3}
   _damageSound: {fileID: 8300000, guid: d4a2efe53cb86804c8abb8952304ef1d, type: 3}
   _deathParticles: {fileID: 8368145655126054656, guid: 769a43ceb6064944cb4357df22d128fb, type: 3}
@@ -829,9 +830,13 @@ MonoBehaviour:
   _moveSpeed: 0.05
   _arenaMaxX: 0
   _arenaMinX: 0
-  _arenaMaxY: 0
-  _arenaMinY: 0
+  _arenaMaxZ: 0
+  _arenaMinZ: 0
   _player: {fileID: 0}
+  _bossHealth: {fileID: 0}
+  _movementState: 0
+  _pillarSpot: {x: 0, y: 0, z: 0}
+  _pillar: {fileID: 0}
 --- !u!1 &1759316761262481522
 GameObject:
   m_ObjectHideFlags: 0

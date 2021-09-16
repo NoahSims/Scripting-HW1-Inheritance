@@ -52,14 +52,4 @@ public class Enemy : MonoBehaviour
             AudioHelper.PlayClip2D(_impactSound, 1f);
         }
     }
-
-    private void FixedUpdate()
-    {
-        Move();
-    }
-
-    protected virtual void Move()
-    {
-
-    }
 }

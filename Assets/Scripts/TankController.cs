@@ -127,4 +127,14 @@ public class TankController : MonoBehaviour
         yield return new WaitForSeconds(_projectileCooldown);
         _isGunOnCooldown = false;
     }
+
+    private void OnDisable()
+    {
+        _turret.SetActive(false);
+    }
+
+    private void OnEnable()
+    {
+        _turret.SetActive(true);
+    }
 }

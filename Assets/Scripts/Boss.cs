@@ -2,6 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+ * This whole script is kind of a mess. I still need to figure out a lot of the movement, but at least two of them are kind of working now
+ */
+
 public class Boss : Enemy
 {
     [SerializeField] private float _arenaMaxX;
@@ -18,13 +22,13 @@ public class Boss : Enemy
     [SerializeField] private movementStates _movementState = movementStates.ROTATION;
     [SerializeField] private Vector3 _pillarSpot;
     [SerializeField] private GameObject _pillar; // this is sloppy, but I'm running out of time and just want it to work
-    private float _tolerance; // the distance moved in one fixed update
+    private float _tolerance; // when boss is within this distance to pillar, warp to pillar, rather than move to it
     private void Start()
     {
         _tolerance = 3;
     }
 
-    protected override void Move()
+    private void FixedUpdate()
     {
         if (_movementState != movementStates.WAIT && _bossHealth.CurrentHealth < _bossHealth.MaxHealth / 2)
         {
@@ -43,14 +47,18 @@ public class Boss : Enemy
                 PillarTime();
                 break;
             case movementStates.WAIT:
+                //FacePlayer();
                 break;
-        }   
+        }
     }
+
+
 
     private void RotationMovement()
     {
         // get heading
         Vector3 heading = _player.transform.position - transform.position;
+        heading.y = transform.position.y; // ignore vertical
         heading = heading / heading.magnitude;
 
         //rotate
@@ -73,6 +81,7 @@ public class Boss : Enemy
     private void MoveTowardsPlayer()
     {
         Vector3 heading = _player.transform.position - transform.position;
+        heading.y = transform.position.y; // ignore vertical
         heading = heading / heading.magnitude;
         _rb.MoveRotation(Quaternion.Lerp(_rb.rotation, Quaternion.LookRotation(heading), 0.1f));
         _rb.MovePosition(_rb.position + (transform.forward * MoveSpeed));
@@ -81,8 +90,8 @@ public class Boss : Enemy
     private void PillarTime()
     {
         Vector3 heading = _pillarSpot - transform.position;
-        Debug.Log(heading.magnitude);
-        if (heading.magnitude > _tolerance)
+        heading.y = transform.position.y; // ignore vertical
+        if (heading.magnitude > _tolerance) // if close to target, just warp to the target
         {
             heading = heading / heading.magnitude;
             _rb.MoveRotation(Quaternion.Lerp(_rb.rotation, Quaternion.LookRotation(heading), 0.1f));
@@ -94,6 +103,18 @@ public class Boss : Enemy
             _pillar.GetComponent<BossPillar>().ActivatePillar();
             _movementState = movementStates.WAIT;
         }
+    }
+
+    //this does not work and I can't figure it out
+    private void FacePlayer()
+    {
+        Vector3 heading = _player.transform.position - transform.position;
+        heading.y = transform.position.y; // ignore vertical
+        Debug.Log(heading);
+        heading = heading / heading.magnitude;
+        //_rb.MoveRotation(Quaternion.Lerp(_rb.rotation, Quaternion.LookRotation(heading), 0.1f));
+        //_rb.MovePosition(new Vector3(_pillarSpot.x, transform.position.y, _pillarSpot.z));
+        transform.LookAt(_player.transform.position);
     }
 
     IEnumerator TurnAwayFromWall()

@@ -12,7 +12,7 @@ public class UIWriter : MonoBehaviour
 
     private void Start()
     {
-        _playerHealth = _player.GetComponent<Health>();
+        _playerHealth = _player.GetComponentInChildren<Health>();
     }
 
     private void FixedUpdate()
