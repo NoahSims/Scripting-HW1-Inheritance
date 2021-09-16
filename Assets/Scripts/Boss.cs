@@ -12,9 +12,20 @@ public class Boss : Enemy
     [SerializeField] private GameObject _player;
     private int _rotationAngle = 80;
 
-    private enum movementStates { ROTATION, TO_PLAYER, PILLAR};
+    [SerializeField] private Health _bossHealth;
+
+    private enum movementStates { ROTATION, TO_PLAYER, PILLAR, WAIT};
     private movementStates _movementState = movementStates.ROTATION;
     [SerializeField] private Vector3 _pillarSpot;
+    [SerializeField] private GameObject _pillar; // this is sloppy, but I'm running out of time and just want it to work
+
+    private void FixedUpdate()
+    {
+        if(_bossHealth.CurrentHealth < _bossHealth.MaxHealth / 2)
+        {
+            _movementState = movementStates.WAIT;
+        }
+    }
 
     protected override void Move()
     {
@@ -28,6 +39,8 @@ public class Boss : Enemy
                 break;
             case movementStates.PILLAR:
                 PillarTime();
+                break;
+            case movementStates.WAIT:
                 break;
         }   
     }
@@ -65,7 +78,18 @@ public class Boss : Enemy
 
     private void PillarTime()
     {
-
+        if (transform.position.x != _pillarSpot.x || transform.position.z != _pillarSpot.z)
+        {
+            Vector3 heading = _player.transform.position - transform.position;
+            heading = heading / heading.magnitude;
+            _rb.MoveRotation(Quaternion.Lerp(_rb.rotation, Quaternion.LookRotation(heading), 0.1f));
+            _rb.MovePosition(_rb.position + (transform.forward * MoveSpeed));
+        }
+        else
+        {
+            _pillar.GetComponent<BossPillar>().ActivatePillar();
+            _movementState = movementStates.WAIT;
+        }
     }
 
     IEnumerator TurnAwayFromWall()

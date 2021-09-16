@@ -2,15 +2,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+ *  Not gonna lie, I may have borrowed this script from another project I'm working on, just because I needed to get this
+ *  working. I will probably clean this up later.
+ */
+
 public class BossPillar : MonoBehaviour
 {
     [SerializeField] private List<Vector3> _points;
     private int _currentTarget = 0;
-    private int _pointsListDirection = 1;
     [SerializeField] public bool _isCurentlyActive;
 
     [SerializeField] private float _moveSpeed = 5f;
-    [SerializeField] private float _delayTime = 2f;
+    [SerializeField] private float _delayTime = 0;
     private float _delayStartTime;
     private float _tolerance; // the distance moved in one fixed update
 
@@ -22,30 +26,15 @@ public class BossPillar : MonoBehaviour
     private void FixedUpdate()
     {
         if (_isCurentlyActive)
-            ActivatedAction();
-        else
-            DeactivatedAction();
-    }
-
-    private void ActivatedAction()
-    {
-        if (transform.position != _points[_currentTarget])
         {
-            MovePlatform();
-        }
-        else
-        {
-            UpdateTarget();
-        }
-    }
-
-    private void DeactivatedAction()
-    {
-        if (transform.position != _points[0])
-        {
-            _currentTarget = 0;
-            _pointsListDirection = 1;
-            MovePlatform();
+            if (transform.position != _points[_currentTarget])
+            {
+                MovePlatform();
+            }
+            else
+            {
+                UpdateTarget();
+            }
         }
     }
 
@@ -54,12 +43,10 @@ public class BossPillar : MonoBehaviour
         Vector3 _heading = _points[_currentTarget] - transform.position;
         if (_heading.magnitude < _tolerance)
         {
-            //_rb.MovePosition(_points[_currentTarget]);
             transform.position = _points[_currentTarget];
         }
         else
         {
-            //_rb.MovePosition(_rb.position + ((_heading / _heading.magnitude) * _moveSpeed * Time.fixedDeltaTime));
             transform.position += (_heading / _heading.magnitude) * _moveSpeed * Time.fixedDeltaTime;
             _delayStartTime = Time.time;
         }
@@ -69,17 +56,16 @@ public class BossPillar : MonoBehaviour
     {
         if (Time.time - _delayStartTime >= _delayTime)
         {
-            _currentTarget += _pointsListDirection;
-            if (_currentTarget < 0 || _currentTarget >= _points.Count)
+            _currentTarget++;
+            if(_currentTarget >= _points.Count)
             {
-                _pointsListDirection = _pointsListDirection * -1;
-                _currentTarget += _pointsListDirection * 2;
-                Mathf.Clamp(_currentTarget, 0, _points.Count);
+                _isCurentlyActive = false;
             }
         }
-        else if (_currentTarget > 0 && _currentTarget < _points.Count - 1)
-        {
-            _currentTarget += _pointsListDirection;
-        }
+    }
+
+    public void ActivatePillar()
+    {
+        _isCurentlyActive = true;
     }
 }
