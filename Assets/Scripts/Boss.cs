@@ -15,21 +15,23 @@ public class Boss : Enemy
     [SerializeField] private Health _bossHealth;
 
     private enum movementStates { ROTATION, TO_PLAYER, PILLAR, WAIT};
-    private movementStates _movementState = movementStates.ROTATION;
+    [SerializeField] private movementStates _movementState = movementStates.ROTATION;
     [SerializeField] private Vector3 _pillarSpot;
     [SerializeField] private GameObject _pillar; // this is sloppy, but I'm running out of time and just want it to work
-
-    private void FixedUpdate()
+    private float _tolerance; // the distance moved in one fixed update
+    private void Start()
     {
-        if(_bossHealth.CurrentHealth < _bossHealth.MaxHealth / 2)
-        {
-            _movementState = movementStates.WAIT;
-        }
+        _tolerance = 3;
     }
 
     protected override void Move()
     {
-        switch(_movementState)
+        if (_movementState != movementStates.WAIT && _bossHealth.CurrentHealth < _bossHealth.MaxHealth / 2)
+        {
+            _movementState = movementStates.PILLAR;
+        }
+
+        switch (_movementState)
         {
             case movementStates.ROTATION:
                 RotationMovement();
@@ -50,7 +52,7 @@ public class Boss : Enemy
         // get heading
         Vector3 heading = _player.transform.position - transform.position;
         heading = heading / heading.magnitude;
-        
+
         //rotate
         _rb.MoveRotation(Quaternion.Lerp(_rb.rotation, Quaternion.LookRotation(heading) * Quaternion.Euler(0, _rotationAngle, 0), 0.5f));
 
@@ -78,15 +80,17 @@ public class Boss : Enemy
 
     private void PillarTime()
     {
-        if (transform.position.x != _pillarSpot.x || transform.position.z != _pillarSpot.z)
+        Vector3 heading = _pillarSpot - transform.position;
+        Debug.Log(heading.magnitude);
+        if (heading.magnitude > _tolerance)
         {
-            Vector3 heading = _player.transform.position - transform.position;
             heading = heading / heading.magnitude;
             _rb.MoveRotation(Quaternion.Lerp(_rb.rotation, Quaternion.LookRotation(heading), 0.1f));
             _rb.MovePosition(_rb.position + (transform.forward * MoveSpeed));
         }
         else
         {
+            _rb.MovePosition(_pillarSpot);
             _pillar.GetComponent<BossPillar>().ActivatePillar();
             _movementState = movementStates.WAIT;
         }

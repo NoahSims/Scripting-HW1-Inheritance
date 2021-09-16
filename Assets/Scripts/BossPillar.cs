@@ -11,7 +11,7 @@ public class BossPillar : MonoBehaviour
 {
     [SerializeField] private List<Vector3> _points;
     private int _currentTarget = 0;
-    [SerializeField] public bool _isCurentlyActive;
+    [SerializeField] public bool _isCurentlyActive = false;
 
     [SerializeField] private float _moveSpeed = 5f;
     [SerializeField] private float _delayTime = 0;
@@ -27,7 +27,7 @@ public class BossPillar : MonoBehaviour
     {
         if (_isCurentlyActive)
         {
-            if (transform.position != _points[_currentTarget])
+            if (_currentTarget <= _points.Count && transform.position != _points[_currentTarget])
             {
                 MovePlatform();
             }
