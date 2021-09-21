@@ -12,20 +12,20 @@ public class UIWriter : MonoBehaviour
 
     private void Start()
     {
-        _playerHealth = _player.GetComponentInChildren<Health>();
+        _playerHealth = _player.GetComponent<Health>();
+        _playerHealth.Damaged += OnPlayerDamaged;
+        _playerHealth.Healed += OnPlayerHealed;
     }
 
-    private void FixedUpdate()
+    private void OnPlayerDamaged(int ammount)
     {
         _healthText.text = "Health = " + _playerHealth.CurrentHealth;
     }
 
-    /*
-    public void SetUIHealth(int value)
+    private void OnPlayerHealed(int ammount)
     {
-        _healthText.text = "Health = " + value;
+        _healthText.text = "Health = " + _playerHealth.CurrentHealth;
     }
-    */
 
     public void SetUITreasure(int value)
     {

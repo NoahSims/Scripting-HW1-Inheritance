@@ -6,10 +6,11 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     TankController _tankController;
-    [SerializeField] UIWriter _uiWriter;
+    //[SerializeField] UIWriter _uiWriter;
     [SerializeField] Material _bodyMaterial;
     [SerializeField] Color _defaultBodyColor;
 
+    /*
     [SerializeField] private int _treasureCount = 0;
     public int TreasureCount
     {
@@ -20,7 +21,7 @@ public class Player : MonoBehaviour
             _uiWriter.SetUITreasure(_treasureCount);
         }
     }
-    
+    */
 
     private void Awake()
     {
@@ -31,7 +32,7 @@ public class Player : MonoBehaviour
     
     void Start()
     {
-        _uiWriter.SetUITreasure(_treasureCount);
+        //_uiWriter.SetUITreasure(_treasureCount);
     }
 
     public void SetBodyColor(Color color)

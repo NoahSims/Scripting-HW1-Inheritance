@@ -1,9 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class Health : MonoBehaviour, IDamageable
 {
+    public event Action<int> Damaged = delegate { };
+    public event Action<int> Healed = delegate { };
+    public event Action Killed = delegate { };
+
     [SerializeField] private int _maxHealth = 3;
     public int MaxHealth { get => _maxHealth; }
     private int _currentHealth;
@@ -31,6 +36,7 @@ public class Health : MonoBehaviour, IDamageable
         if (!_isInvincible)
         {
             _currentHealth -= damage;
+            Damaged.Invoke(damage);
             if (_currentHealth <= 0)
             {
                 Kill();
@@ -46,11 +52,13 @@ public class Health : MonoBehaviour, IDamageable
     public void IncreaseHealth(int amount)
     {
         _currentHealth += amount;
+        Healed.Invoke(amount);
         Mathf.Clamp(_currentHealth, 0, _maxHealth);
     }
 
     public void Kill()
     {
+        Killed.Invoke();
         Feedback(_deathParticles, _deathSound);
         gameObject.SetActive(false);
     }
