@@ -148,7 +148,7 @@ public class Boss : Enemy
     }
     #endregion
     // ----------------------------------------------------------------------------------------------------
-    #region Rotation Movement
+    #region Charge Attack
     private void RotationMovement()
     {
         StartCoroutine(StartChargeAttackSequence());
@@ -164,13 +164,26 @@ public class Boss : Enemy
         Vector3 move = _rb.position + (transform.forward * MoveSpeed * 5);
         if (move.x > _arenaMaxX || move.x < _arenaMinX || move.z > _arenaMaxZ || move.z < _arenaMinZ)
         {
-            _movementState = movementStates.TO_PLAYER;
-            StartCoroutine(TurnAwayFromWall());
+            //_movementState = movementStates.TO_PLAYER;
+            //StartCoroutine(TurnAwayFromWall());
+            StartCoroutine(FlipRotationCooldown());
         }
         else
         // move
         {
             _rb.MovePosition(_rb.position + (transform.forward * MoveSpeed));
+        }
+    }
+
+    private bool isFlipRotationOnCooldown = false;
+    IEnumerator FlipRotationCooldown()
+    {
+        if(!isFlipRotationOnCooldown)
+        {
+            isFlipRotationOnCooldown = true;
+            _rotationAngle = (-1) * _rotationAngle;
+            yield return new WaitForSeconds(0.5f);
+            isFlipRotationOnCooldown = false;
         }
     }
 
