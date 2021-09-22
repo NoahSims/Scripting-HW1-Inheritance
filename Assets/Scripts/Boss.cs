@@ -47,7 +47,7 @@ public class Boss : Enemy
                 PillarTime();
                 break;
             case movementStates.WAIT:
-                //FacePlayer();
+                FacePlayer();
                 break;
         }
     }
@@ -59,7 +59,8 @@ public class Boss : Enemy
         // get heading
         Vector3 heading = _player.transform.position - transform.position;
         heading.y = transform.position.y; // ignore vertical
-        heading = heading / heading.magnitude;
+        //heading = heading / heading.magnitude;
+        heading = Vector3.Normalize(heading);
 
         //rotate
         _rb.MoveRotation(Quaternion.Lerp(_rb.rotation, Quaternion.LookRotation(heading) * Quaternion.Euler(0, _rotationAngle, 0), 0.5f));
@@ -82,7 +83,8 @@ public class Boss : Enemy
     {
         Vector3 heading = _player.transform.position - transform.position;
         heading.y = transform.position.y; // ignore vertical
-        heading = heading / heading.magnitude;
+        //heading = heading / heading.magnitude;
+        heading = Vector3.Normalize(heading);
         _rb.MoveRotation(Quaternion.Lerp(_rb.rotation, Quaternion.LookRotation(heading), 0.1f));
         _rb.MovePosition(_rb.position + (transform.forward * MoveSpeed));
     }
@@ -93,7 +95,8 @@ public class Boss : Enemy
         heading.y = transform.position.y; // ignore vertical
         if (heading.magnitude > _tolerance) // if close to target, just warp to the target
         {
-            heading = heading / heading.magnitude;
+            //heading = heading / heading.magnitude;
+            heading = Vector3.Normalize(heading);
             _rb.MoveRotation(Quaternion.Lerp(_rb.rotation, Quaternion.LookRotation(heading), 0.1f));
             _rb.MovePosition(_rb.position + (transform.forward * MoveSpeed));
         }
@@ -108,13 +111,15 @@ public class Boss : Enemy
     //this does not work and I can't figure it out
     private void FacePlayer()
     {
+        _rb.constraints = RigidbodyConstraints.FreezePosition;
         Vector3 heading = _player.transform.position - transform.position;
         heading.y = transform.position.y; // ignore vertical
+        //heading = heading / heading.magnitude;
+        heading = Vector3.Normalize(heading);
         Debug.Log(heading);
-        heading = heading / heading.magnitude;
         //_rb.MoveRotation(Quaternion.Lerp(_rb.rotation, Quaternion.LookRotation(heading), 0.1f));
         //_rb.MovePosition(new Vector3(_pillarSpot.x, transform.position.y, _pillarSpot.z));
-        transform.LookAt(_player.transform.position);
+        transform.LookAt(_player.transform);
     }
 
     IEnumerator TurnAwayFromWall()

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
 public class Treasure : CollectableBase
 {
     [SerializeField] int _treasureAdded = 1;
@@ -18,3 +19,4 @@ public class Treasure : CollectableBase
         rb.MoveRotation(rb.rotation * turnOffset);
     }
 }
+*/
