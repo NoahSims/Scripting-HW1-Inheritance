@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 /*
  *  Not gonna lie, I may have borrowed this script from another project I'm working on, just because I needed to get this
@@ -9,6 +10,7 @@ using UnityEngine;
 
 public class BossPillar : MonoBehaviour
 {
+    public event Action<bool> PillarInPosition = delegate { };
     [SerializeField] private List<Vector3> _points;
     private int _currentTarget = 0;
     [SerializeField] public bool _isCurentlyActive = false;
@@ -17,6 +19,8 @@ public class BossPillar : MonoBehaviour
     [SerializeField] private float _delayTime = 0;
     private float _delayStartTime;
     private float _tolerance; // the distance moved in one fixed update
+
+    private List<GameObject> children = new List<GameObject>();
 
     private void Start()
     {
@@ -60,12 +64,36 @@ public class BossPillar : MonoBehaviour
             if(_currentTarget >= _points.Count)
             {
                 _isCurentlyActive = false;
+                PillarInPosition.Invoke(true);
             }
         }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (_isCurentlyActive)
+        {
+            other.transform.parent = transform;
+            children.Add(other.gameObject);
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        other.transform.parent = null;
     }
 
     public void ActivatePillar()
     {
         _isCurentlyActive = true;
+    }
+
+    private void OnDisable()
+    {
+        foreach  (GameObject obj in children)
+        {
+            obj.transform.parent = null;
+        }
+        PillarInPosition.Invoke(false);
     }
 }

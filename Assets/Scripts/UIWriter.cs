@@ -7,7 +7,6 @@ public class UIWriter : MonoBehaviour
 {
     //[SerializeField] Text _healthText;
     [SerializeField] private List<Image> _playerHearts;
-    [SerializeField] private ParticleSystem _playerHeartParticles;
     [SerializeField] private Image _bossHealthBar;
     //[SerializeField] Text _bossHealthText;
     //[SerializeField] Text _treasureText;
@@ -41,14 +40,6 @@ public class UIWriter : MonoBehaviour
             else if (Vector3.Equals(_playerHearts[i].rectTransform.localScale, new Vector3(1, 1, 1)))
             {
                 _playerHearts[i].rectTransform.localScale = new Vector3(0.3f, 0.3f, 1);
-                ParticleSystem particles = _playerHearts[i].GetComponentInChildren<ParticleSystem>();
-                
-                if (particles != null)
-                {
-                    //ParticleSystem _particles = Instantiate(particles, particles.transform.position, Quaternion.identity);
-                    particles.Play();
-
-                }
             }                
         }
     }

@@ -18,50 +18,76 @@ public class Boss : Enemy
 
     [SerializeField] private Health _bossHealth;
 
-    private enum movementStates { RAMPAGE, ROTATION, CHARGE, TO_PLAYER, PILLAR, WAIT};
+    private enum movementStates { RAMPAGE, ROTATION, CHARGE, TO_PLAYER, PILLAR, PILLAR_ATTACK, WAIT};
     [SerializeField] private movementStates _movementState = movementStates.ROTATION;
 
     private Vector3 _chargeHeading;
 
     [SerializeField] private Vector3 _pillarSpot;
     [SerializeField] private GameObject _pillar; // this is sloppy, but I'm running out of time and just want it to work
+    private bool _isPillarUsed = false;
     private float _tolerance; // when boss is within this distance to pillar, warp to pillar, rather than move to it
 
+    // ----------------------------------------------------------------------------------------------------
+    #region Unity Events
     private void Start()
     {
         _tolerance = 3;
         _chargeHeading = getRandomHeading();
+        _rb.constraints = RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
     }
 
     private void OnEnable()
     {
         _bossHealth.Damaged += OnBossDamaged;
+        _pillar.GetComponent<BossPillar>().PillarInPosition += OnPillarInPosition;
     }
 
     private void OnDisable()
     {
         _bossHealth.Damaged -= OnBossDamaged;
+        if(_pillar != null)
+            _pillar.GetComponent<BossPillar>().PillarInPosition -= OnPillarInPosition;
     }
 
     private void OnBossDamaged(int ammount)
     {
         if (_movementState == movementStates.RAMPAGE)
         {
-            int coin = (int)Mathf.Round(Random.value);
-            if (coin == 1)
+            if (!_isPillarUsed && _bossHealth.CurrentHealth <= _bossHealth.MaxHealth / 2)
             {
-                _movementState = movementStates.ROTATION;
+                _movementState = movementStates.PILLAR;
+                _isPillarUsed = true;
+            }
+            else
+            {
+                int coin = (int)Mathf.Round(Random.value);
+                if (coin == 1)
+                {
+                    _movementState = movementStates.ROTATION;
+                }
             }
         }
     }
 
+    private void OnPillarInPosition(bool pillarAlive)
+    {
+        if(pillarAlive)
+        {
+            _rb.constraints = RigidbodyConstraints.FreezePosition | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+            _movementState = movementStates.PILLAR_ATTACK;
+        }
+        else
+        {
+            _rb.constraints = RigidbodyConstraints.None;
+            StartCoroutine(EndChargeAttack()); // this is basically a stun for a couple of seconds, it's name should probably be changed
+        }
+    }
+    #endregion
+    // ----------------------------------------------------------------------------------------------------
+
     private void FixedUpdate()
     {
-        if (_movementState != movementStates.WAIT && _bossHealth.CurrentHealth < _bossHealth.MaxHealth / 2)
-        {
-            _movementState = movementStates.PILLAR;
-        }
-
         switch (_movementState)
         {
             case movementStates.RAMPAGE:
@@ -79,8 +105,10 @@ public class Boss : Enemy
             case movementStates.PILLAR:
                 PillarTime();
                 break;
+            case movementStates.PILLAR_ATTACK:
+                FacePlayer();
+                break;
             case movementStates.WAIT:
-                //FacePlayer();
                 break;
         }
     }
@@ -248,16 +276,7 @@ public class Boss : Enemy
     }
     #endregion
     // ----------------------------------------------------------------------------------------------------
-
-    private void MoveTowardsPlayer()
-    {
-        Vector3 heading = _player.transform.position - transform.position;
-        heading.y = 0; // ignore vertical
-        heading = Vector3.Normalize(heading);
-        _rb.MoveRotation(Quaternion.Lerp(_rb.rotation, Quaternion.LookRotation(heading), 0.1f));
-        _rb.MovePosition(_rb.position + (transform.forward * MoveSpeed));
-    }
-
+    #region Pillar Attack
     private void PillarTime()
     {
         Vector3 heading = _pillarSpot - transform.position;
@@ -272,22 +291,37 @@ public class Boss : Enemy
         else
         {
             _rb.MovePosition(_pillarSpot);
-            _pillar.GetComponent<BossPillar>().ActivatePillar();
+            _rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
             _movementState = movementStates.WAIT;
+            _pillar.GetComponent<BossPillar>().ActivatePillar();
         }
     }
 
     //this does not work and I can't figure it out
     private void FacePlayer()
     {
-        _rb.constraints = RigidbodyConstraints.FreezePosition;
+        
         Vector3 heading = _player.transform.position - transform.position;
         heading.y = transform.position.y; // ignore vertical
         //heading = heading / heading.magnitude;
-        heading = Vector3.Normalize(heading);
+        //heading = Vector3.Normalize(heading);
         Debug.Log(heading);
         //_rb.MoveRotation(Quaternion.Lerp(_rb.rotation, Quaternion.LookRotation(heading), 0.1f));
         //_rb.MovePosition(new Vector3(_pillarSpot.x, transform.position.y, _pillarSpot.z));
-        transform.LookAt(_player.transform);
+        transform.LookAt(heading);
     }
+    #endregion
+    // ----------------------------------------------------------------------------------------------------
+    #region No Longer Used
+    private void MoveTowardsPlayer()
+    {
+        Vector3 heading = _player.transform.position - transform.position;
+        heading.y = 0; // ignore vertical
+        heading = Vector3.Normalize(heading);
+        _rb.MoveRotation(Quaternion.Lerp(_rb.rotation, Quaternion.LookRotation(heading), 0.1f));
+        _rb.MovePosition(_rb.position + (transform.forward * MoveSpeed));
+    }
+
+    #endregion
+    // ----------------------------------------------------------------------------------------------------
 }

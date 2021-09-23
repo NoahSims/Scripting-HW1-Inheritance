@@ -98,7 +98,7 @@ public class TankController : MonoBehaviour
     {
         if (!_isGunOnCooldown)
         {
-            Debug.Log(_turret.transform.rotation.y);
+            //Debug.Log(_turret.transform.rotation.y);
             //Quaternion _projectileRotation = Quaternion.Euler(0, _turret.transform.rotation.y, 0);
             Instantiate(_projectile, _projectileSpawn.transform.position, _turret.transform.rotation);
             _isGunOnCooldown = true;

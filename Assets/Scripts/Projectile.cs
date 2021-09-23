@@ -26,7 +26,7 @@ public class Projectile : MonoBehaviour
     {
         if(other.gameObject.tag != "Player" && other.gameObject.tag != "PlayerProjectile")
         {
-            Debug.Log("Collided with" + other.gameObject.name);
+            //Debug.Log("Collided with" + other.gameObject.name);
             if(other.GetComponent<IDamageable>() != null)
                 other.GetComponent<IDamageable>().TakeDamage(_damage);
             Feedback();
