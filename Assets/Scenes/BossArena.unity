@@ -2125,6 +2125,10 @@ PrefabInstance:
       value: 8.3
       objectReference: {fileID: 0}
     - target: {fileID: 1759316761228429543, guid: cee7884fed751d04faa964d9778d298d, type: 3}
+      propertyPath: _bossCrosshair
+      value: 
+      objectReference: {fileID: 7640121179177631323, guid: cb589b94d555c074289f879035b343a4, type: 3}
+    - target: {fileID: 1759316761228429543, guid: cee7884fed751d04faa964d9778d298d, type: 3}
       propertyPath: _movementState
       value: 0
       objectReference: {fileID: 0}

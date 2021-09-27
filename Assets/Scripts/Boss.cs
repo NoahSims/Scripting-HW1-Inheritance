@@ -28,6 +28,9 @@ public class Boss : Enemy
     private bool _isPillarUsed = false;
     private float _tolerance; // when boss is within this distance to pillar, warp to pillar, rather than move to it
 
+    [Header("Mortar Stuff")]
+    [SerializeField] private GameObject _bossCrosshair = null;
+
     // ----------------------------------------------------------------------------------------------------
     #region Unity Events
     private void Start()
@@ -294,10 +297,14 @@ public class Boss : Enemy
             _rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
             _movementState = movementStates.WAIT;
             _pillar.GetComponent<BossPillar>().ActivatePillar();
+
+            Vector3 crossHairPos = _pillar.transform.position;
+            crossHairPos.y = 0.01f;
+            GameObject newCrosshair = Instantiate(_bossCrosshair, crossHairPos, Quaternion.identity);
+            newCrosshair.GetComponent<BossCrosshair>()._target = _player;
         }
     }
 
-    //this does not work and I can't figure it out
     private void FacePlayer()
     {
         
