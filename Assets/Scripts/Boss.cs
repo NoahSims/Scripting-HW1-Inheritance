@@ -10,30 +10,29 @@ public class Boss : Enemy
 {
     public event System.Action<float, float> Crashed = delegate { };
     public event System.Action PillarDown = delegate { };
+    [Header("Boss")]
+    [SerializeField] private GameObject _player;
+    [SerializeField] private Health _bossHealth;
+    [Header("Standard Movement")]
     [SerializeField] private float _arenaMaxX;
     [SerializeField] private float _arenaMinX;
     [SerializeField] private float _arenaMaxZ;
     [SerializeField] private float _arenaMinZ;
-
-    [SerializeField] private GameObject _player;
     private int _rotationAngle = 80;
-
-    [SerializeField] private Health _bossHealth;
 
     private enum movementStates { RAMPAGE, ROTATION, CHARGE, TO_PLAYER, PILLAR, PILLAR_ATTACK, WAIT};
     [SerializeField] private movementStates _movementState = movementStates.ROTATION;
 
-    [Header("Standard Movement")]
     [SerializeField] private AudioClip _smallCrashSound = null;
 
     [Header("Charge Attack")]
-    private Vector3 _chargeHeading;
     [SerializeField] private ParticleSystem _chargeExclamationParticles = null;
     [SerializeField] private AudioClip _chargeSound = null;
     [SerializeField] private ParticleSystem _crashParticles = null;
     [SerializeField] private AudioClip _crashSound = null;
     [SerializeField] private float _crashCameraShakeDuration = 0.5f;
     [SerializeField] private float _crashCameraShakeMagnitude = 1f;
+    private Vector3 _chargeHeading;
 
     [Header("Mortar & Pillar")]
     [SerializeField] private Vector3 _pillarSpot;
@@ -111,7 +110,7 @@ public class Boss : Enemy
     }
     #endregion
     // ----------------------------------------------------------------------------------------------------
-
+    #region State Machine
     private void FixedUpdate()
     {
         switch (_movementState)
@@ -139,7 +138,7 @@ public class Boss : Enemy
                 break;
         }
     }
-
+    #endregion
     // ----------------------------------------------------------------------------------------------------
     #region Rampage Movement
 

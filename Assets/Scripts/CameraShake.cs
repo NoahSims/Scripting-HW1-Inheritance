@@ -26,6 +26,13 @@ public class CameraShake : MonoBehaviour
         MortarProjectile.MortarExploded += OnMortarExploded;
     }
 
+    private void OnDisable()
+    {
+        _playerHealth.Damaged -= OnPlayerDamaged;
+        _boss.Crashed -= OnBossCrashed;
+        MortarProjectile.MortarExploded -= OnMortarExploded;
+    }
+
     private void OnPlayerDamaged(int ammount)
     {
         StartCoroutine(ShakeCamera(_playerDamagedShakeDuration, ammount));
