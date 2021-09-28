@@ -15,6 +15,12 @@ public class BossCrosshair : MonoBehaviour
         _moveSpeed = speed;
         _target = target;
         _boss = boss;
+        _boss.GetComponent<Boss>().PillarDown += Kill;
+    }
+
+    private void OnDisable()
+    {
+        _boss.GetComponent<Boss>().PillarDown -= Kill;
     }
 
     private void FixedUpdate()
@@ -41,5 +47,11 @@ public class BossCrosshair : MonoBehaviour
             gameObject.GetComponent<MeshRenderer>().material = _mTargetAquired;
             _boss.GetComponent<Boss>().TargetAquired(gameObject);
         }
+    }
+
+    private void Kill()
+    {
+        if(_isMoving)
+            Destroy(gameObject);
     }
 }

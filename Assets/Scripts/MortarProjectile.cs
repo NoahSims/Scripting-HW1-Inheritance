@@ -1,9 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class MortarProjectile : MonoBehaviour
 {
+    public static event Action<float, float> MortarExploded;
+    [SerializeField] private float _mortarExplosionShakeDuration = 0.1f;
+    [SerializeField] private float _mortarExplosionShakeMagnitude = 0.1f;
     [SerializeField] private int _damageAmmount = 1;
     private bool _isMoving = true;
     private float _moveSpeed = 1f;
@@ -57,6 +61,7 @@ public class MortarProjectile : MonoBehaviour
     private void Explode()
     {
         ImpactFeedback();
+        MortarExploded.Invoke(_mortarExplosionShakeDuration, _mortarExplosionShakeMagnitude);
         Destroy(_target); // target is the crosshair this is aimed at
         Destroy(gameObject);
     }

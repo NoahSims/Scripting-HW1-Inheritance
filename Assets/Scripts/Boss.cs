@@ -8,6 +8,8 @@ using UnityEngine;
 
 public class Boss : Enemy
 {
+    public event System.Action<float, float> Crashed = delegate { };
+    public event System.Action PillarDown = delegate { };
     [SerializeField] private float _arenaMaxX;
     [SerializeField] private float _arenaMinX;
     [SerializeField] private float _arenaMaxZ;
@@ -21,14 +23,25 @@ public class Boss : Enemy
     private enum movementStates { RAMPAGE, ROTATION, CHARGE, TO_PLAYER, PILLAR, PILLAR_ATTACK, WAIT};
     [SerializeField] private movementStates _movementState = movementStates.ROTATION;
 
-    private Vector3 _chargeHeading;
+    [Header("Standard Movement")]
+    [SerializeField] private AudioClip _smallCrashSound = null;
 
+    [Header("Charge Attack")]
+    private Vector3 _chargeHeading;
+    [SerializeField] private ParticleSystem _chargeExclamationParticles = null;
+    [SerializeField] private AudioClip _chargeSound = null;
+    [SerializeField] private ParticleSystem _crashParticles = null;
+    [SerializeField] private AudioClip _crashSound = null;
+    [SerializeField] private float _crashCameraShakeDuration = 0.5f;
+    [SerializeField] private float _crashCameraShakeMagnitude = 1f;
+
+    [Header("Mortar & Pillar")]
     [SerializeField] private Vector3 _pillarSpot;
     [SerializeField] private GameObject _pillar; // this is sloppy, but I'm running out of time and just want it to work
     private bool _isPillarUsed = false;
     private float _tolerance; // when boss is within this distance to pillar, warp to pillar, rather than move to it
-
-    [Header("Mortar Stuff")]
+    [SerializeField] private AudioClip _buildPillarSound = null;
+    
     [SerializeField] private GameObject _bossCrosshair = null;
     [SerializeField] private float _crosshairSpeed = 0.15f;
     [SerializeField] private GameObject _mortarProjectile = null;
@@ -91,6 +104,8 @@ public class Boss : Enemy
         else
         {
             _rb.constraints = RigidbodyConstraints.None;
+            PillarDown.Invoke();
+            StartCoroutine(DelayedScreenShake());
             StartCoroutine(EndChargeAttack()); // this is basically a stun for a couple of seconds, it's name should probably be changed
         }
     }
@@ -110,9 +125,9 @@ public class Boss : Enemy
             case movementStates.CHARGE:
                 ChargeAttack();
                 break;
-            case movementStates.TO_PLAYER:
-                MoveTowardsPlayer();
-                break;
+            //case movementStates.TO_PLAYER:
+                //MoveTowardsPlayer();
+                //break;
             case movementStates.PILLAR:
                 MoveToPillar();
                 break;
@@ -163,6 +178,8 @@ public class Boss : Enemy
     {
         if(!rotateXOnCooldown)
         {
+            Feedback(null, _smallCrashSound, transform);
+            Crashed.Invoke(0.1f, 0.1f);
             rotateXOnCooldown = true;
             _chargeHeading.x = _chargeHeading.x * (-1);
             _chargeHeading = Quaternion.Euler(0, Random.Range(-30, 30), 0) * _chargeHeading;
@@ -177,6 +194,8 @@ public class Boss : Enemy
     {
         if (!rotateZOnCooldown)
         {
+            Feedback(null, _smallCrashSound, transform);
+            Crashed.Invoke(0.1f, 0.1f);
             rotateZOnCooldown = true;
             //_rampageHeading = new Vector3(_rampageHeading.x, _rampageHeading.y, _rampageHeading.z * (-1));
             _chargeHeading.z = _chargeHeading.z * (-1);
@@ -220,6 +239,8 @@ public class Boss : Enemy
     {
         if(!isFlipRotationOnCooldown)
         {
+            Feedback(null, _smallCrashSound, transform);
+            Crashed.Invoke(0.1f, 0.1f);
             isFlipRotationOnCooldown = true;
             _rotationAngle = (-1) * _rotationAngle;
             yield return new WaitForSeconds(0.5f);
@@ -227,11 +248,7 @@ public class Boss : Enemy
         }
     }
 
-    IEnumerator TurnAwayFromWall()
-    {
-        yield return new WaitForSeconds(0.5f);
-        _movementState = movementStates.ROTATION;
-    }
+    
 
     private bool isChargeAttackSequenceStarted = false;
     IEnumerator StartChargeAttackSequence()
@@ -239,7 +256,7 @@ public class Boss : Enemy
         if(!isChargeAttackSequenceStarted)
         {
             isChargeAttackSequenceStarted = true;
-            yield return new WaitForSeconds(Random.Range(2, 5));
+            yield return new WaitForSeconds(Random.Range(2, 4));    // use rotation movement for 2 to 4 seconds
             isChargeAttackSequenceStarted = false;
             StartCoroutine(ChargeTelegraph());
         }
@@ -252,7 +269,9 @@ public class Boss : Enemy
         _chargeHeading = _player.transform.position - transform.position;
         _chargeHeading.y = 0;
         _chargeHeading = Vector3.Normalize(_chargeHeading);
-        // feedback
+
+        Feedback(_chargeExclamationParticles, _chargeSound, transform);
+
         yield return new WaitForSeconds(0.5f);
         _bossHealth.IsInvincible = false;
         _movementState = movementStates.CHARGE;
@@ -280,10 +299,11 @@ public class Boss : Enemy
     IEnumerator EndChargeAttack()
     {
         _movementState = movementStates.WAIT;
-        _bossHealth.IsInvincible = true;
-        // feedback
+        //_bossHealth.IsInvincible = true;
+        Feedback(_crashParticles, _crashSound, transform);
+        Crashed.Invoke(_crashCameraShakeDuration, _crashCameraShakeMagnitude);
         yield return new WaitForSeconds(2f);
-        _bossHealth.IsInvincible = false;
+        //_bossHealth.IsInvincible = false;
         _movementState = movementStates.RAMPAGE;
     }
     #endregion
@@ -295,7 +315,6 @@ public class Boss : Enemy
         heading.y = transform.position.y; // ignore vertical
         if (heading.magnitude > _tolerance) // if close to target, just warp to the target
         {
-            //heading = heading / heading.magnitude;
             heading = Vector3.Normalize(heading);
             _rb.MoveRotation(Quaternion.Lerp(_rb.rotation, Quaternion.LookRotation(heading), 0.1f));
             _rb.MovePosition(_rb.position + (transform.forward * MoveSpeed));
@@ -306,6 +325,8 @@ public class Boss : Enemy
             _rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
             _movementState = movementStates.WAIT;
             _pillar.GetComponent<BossPillar>().ActivatePillar();
+            Feedback(null, _buildPillarSound, transform);
+            Crashed.Invoke(0.5f, 1f);
         }
     }
 
@@ -313,11 +334,6 @@ public class Boss : Enemy
     {
         Vector3 heading = _player.transform.position - transform.position;
         heading.y = transform.position.y; // ignore vertical
-        //heading = heading / heading.magnitude;
-        //heading = Vector3.Normalize(heading);
-        //Debug.Log(heading);
-        //_rb.MoveRotation(Quaternion.Lerp(_rb.rotation, Quaternion.LookRotation(heading), 0.1f));
-        //_rb.MovePosition(new Vector3(_pillarSpot.x, transform.position.y, _pillarSpot.z));
         transform.LookAt(heading);
     }
 
@@ -359,6 +375,14 @@ public class Boss : Enemy
         newMortarProjectile.GetComponent<MortarProjectile>().SetValues(_mortarSpeed, crossHair, gameObject);
     }
 
+    IEnumerator DelayedScreenShake()
+    {
+        yield return new WaitForSeconds(0.3f);
+        Crashed.Invoke(_crashCameraShakeDuration, _crashCameraShakeMagnitude);
+    }
+    #endregion
+    // ----------------------------------------------------------------------------------------------------
+    #region Helper Methods
     private void Feedback(ParticleSystem particles, AudioClip audio, Transform transform)
     {
         // particles
@@ -376,6 +400,12 @@ public class Boss : Enemy
     #endregion
     // ----------------------------------------------------------------------------------------------------
     #region No Longer Used
+    /*
+    IEnumerator TurnAwayFromWall()
+    {
+        yield return new WaitForSeconds(0.5f);
+        _movementState = movementStates.ROTATION;
+    }
     private void MoveTowardsPlayer()
     {
         Vector3 heading = _player.transform.position - transform.position;
@@ -384,7 +414,7 @@ public class Boss : Enemy
         _rb.MoveRotation(Quaternion.Lerp(_rb.rotation, Quaternion.LookRotation(heading), 0.1f));
         _rb.MovePosition(_rb.position + (transform.forward * MoveSpeed));
     }
-
+    */
     #endregion
     // ----------------------------------------------------------------------------------------------------
 }

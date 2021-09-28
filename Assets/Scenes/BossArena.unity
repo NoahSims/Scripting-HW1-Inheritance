@@ -318,6 +318,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _player: {fileID: 1615622124}
   _playerDamagedShakeDuration: 0.25
+  _bossObject: {fileID: 1604638991}
 --- !u!1 &388440437
 GameObject:
   m_ObjectHideFlags: 0
@@ -1362,7 +1363,7 @@ MonoBehaviour:
   - {x: 0, y: -2.25, z: 9}
   - {x: 0, y: 2, z: 9}
   _isCurentlyActive: 0
-  _moveSpeed: 5
+  _moveSpeed: 3
   _delayTime: 0
 --- !u!65 &1264587529
 BoxCollider:
@@ -2098,6 +2099,10 @@ PrefabInstance:
       propertyPath: _maxHealth
       value: 10
       objectReference: {fileID: 0}
+    - target: {fileID: 1759316761228429542, guid: cee7884fed751d04faa964d9778d298d, type: 3}
+      propertyPath: _deathSound
+      value: 
+      objectReference: {fileID: 8300000, guid: 046c64d914f2c7b458760ee3d839d4f5, type: 3}
     - target: {fileID: 1759316761228429543, guid: cee7884fed751d04faa964d9778d298d, type: 3}
       propertyPath: _pillar
       value: 
@@ -2131,6 +2136,14 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 553462888}
     - target: {fileID: 1759316761228429543, guid: cee7884fed751d04faa964d9778d298d, type: 3}
+      propertyPath: _crashSound
+      value: 
+      objectReference: {fileID: 8300000, guid: 28b30f2a268b13144bffd51ef638ea73, type: 3}
+    - target: {fileID: 1759316761228429543, guid: cee7884fed751d04faa964d9778d298d, type: 3}
+      propertyPath: _chargeSound
+      value: 
+      objectReference: {fileID: 8300000, guid: b915f6c4d9245a841a6b3d31074674ab, type: 3}
+    - target: {fileID: 1759316761228429543, guid: cee7884fed751d04faa964d9778d298d, type: 3}
       propertyPath: _mortarSmoke
       value: 
       objectReference: {fileID: 8368145655126054656, guid: a818221d0f1e20b4f91958b7d728f2d3, type: 3}
@@ -2159,6 +2172,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1759316761228429543, guid: cee7884fed751d04faa964d9778d298d, type: 3}
+      propertyPath: _crashParticles
+      value: 
+      objectReference: {fileID: 8368145655126054656, guid: 769a43ceb6064944cb4357df22d128fb, type: 3}
+    - target: {fileID: 1759316761228429543, guid: cee7884fed751d04faa964d9778d298d, type: 3}
       propertyPath: _crosshairSpeed
       value: 0.2
       objectReference: {fileID: 0}
@@ -2171,6 +2188,14 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8300000, guid: 921d5305bf8ed8d41bef13946eff2196, type: 3}
     - target: {fileID: 1759316761228429543, guid: cee7884fed751d04faa964d9778d298d, type: 3}
+      propertyPath: _smallCrashSound
+      value: 
+      objectReference: {fileID: 8300000, guid: 1d1abdb9e75328b46881b7ee33d712f5, type: 3}
+    - target: {fileID: 1759316761228429543, guid: cee7884fed751d04faa964d9778d298d, type: 3}
+      propertyPath: _buildPillarSound
+      value: 
+      objectReference: {fileID: 8300000, guid: b0f4d79d2d73a3e40b1d74ee0a2fe946, type: 3}
+    - target: {fileID: 1759316761228429543, guid: cee7884fed751d04faa964d9778d298d, type: 3}
       propertyPath: _mortarProjectile
       value: 
       objectReference: {fileID: 5095630369874194072, guid: c0dd521437d8fd04ebf0af3ebb593e53, type: 3}
@@ -2178,6 +2203,10 @@ PrefabInstance:
       propertyPath: _mortarSmokeParticles
       value: 
       objectReference: {fileID: 8368145655126054656, guid: a818221d0f1e20b4f91958b7d728f2d3, type: 3}
+    - target: {fileID: 1759316761228429543, guid: cee7884fed751d04faa964d9778d298d, type: 3}
+      propertyPath: _chargeExclamationParticles
+      value: 
+      objectReference: {fileID: 8368145655126054656, guid: 9d12509bd2466bb409756f0c6e037749, type: 3}
     - target: {fileID: 1759316761599103069, guid: cee7884fed751d04faa964d9778d298d, type: 3}
       propertyPath: m_LocalPosition.y
       value: -0.14

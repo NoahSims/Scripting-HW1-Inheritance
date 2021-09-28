@@ -69,6 +69,7 @@ public class BossPillar : MonoBehaviour
         }
     }
 
+    /*
     private void OnTriggerEnter(Collider other)
     {
         if (_isCurentlyActive)
@@ -82,6 +83,7 @@ public class BossPillar : MonoBehaviour
     {
         other.transform.parent = null;
     }
+    */
 
     public void ActivatePillar()
     {
@@ -90,10 +92,12 @@ public class BossPillar : MonoBehaviour
 
     private void OnDisable()
     {
+        /*
         foreach  (GameObject obj in children)
         {
             obj.transform.parent = null;
         }
+        */
         PillarInPosition.Invoke(false);
     }
 }
