@@ -30,6 +30,14 @@ public class Boss : Enemy
 
     [Header("Mortar Stuff")]
     [SerializeField] private GameObject _bossCrosshair = null;
+    [SerializeField] private float _crosshairSpeed = 0.15f;
+    [SerializeField] private GameObject _mortarProjectile = null;
+    [SerializeField] private float _mortarSpeed = 1f;
+    [SerializeField] private float _mortarShotDelay = 0.5f;
+    [SerializeField] private ParticleSystem _mortarSmokeParticles = null;
+    [SerializeField] private AudioClip _mortarShotSound = null;
+    [SerializeField] private GameObject _mortarSpawnL;
+    [SerializeField] private GameObject _mortarSpawnR;
 
     // ----------------------------------------------------------------------------------------------------
     #region Unity Events
@@ -106,10 +114,11 @@ public class Boss : Enemy
                 MoveTowardsPlayer();
                 break;
             case movementStates.PILLAR:
-                PillarTime();
+                MoveToPillar();
                 break;
             case movementStates.PILLAR_ATTACK:
                 FacePlayer();
+                MortarFireSequence();
                 break;
             case movementStates.WAIT:
                 break;
@@ -280,7 +289,7 @@ public class Boss : Enemy
     #endregion
     // ----------------------------------------------------------------------------------------------------
     #region Pillar Attack
-    private void PillarTime()
+    private void MoveToPillar()
     {
         Vector3 heading = _pillarSpot - transform.position;
         heading.y = transform.position.y; // ignore vertical
@@ -297,25 +306,72 @@ public class Boss : Enemy
             _rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
             _movementState = movementStates.WAIT;
             _pillar.GetComponent<BossPillar>().ActivatePillar();
-
-            Vector3 crossHairPos = _pillar.transform.position;
-            crossHairPos.y = 0.01f;
-            GameObject newCrosshair = Instantiate(_bossCrosshair, crossHairPos, Quaternion.identity);
-            newCrosshair.GetComponent<BossCrosshair>()._target = _player;
         }
     }
 
     private void FacePlayer()
     {
-        
         Vector3 heading = _player.transform.position - transform.position;
         heading.y = transform.position.y; // ignore vertical
         //heading = heading / heading.magnitude;
         //heading = Vector3.Normalize(heading);
-        Debug.Log(heading);
+        //Debug.Log(heading);
         //_rb.MoveRotation(Quaternion.Lerp(_rb.rotation, Quaternion.LookRotation(heading), 0.1f));
         //_rb.MovePosition(new Vector3(_pillarSpot.x, transform.position.y, _pillarSpot.z));
         transform.LookAt(heading);
+    }
+
+    private int mortarCounter = 0;
+    private float timeLastFired = 0f;
+    private void MortarFireSequence()
+    {
+        if(Time.time - timeLastFired > 1f)
+        {
+            timeLastFired = Time.time;
+
+            Vector3 crossHairPos = _pillar.transform.position;
+            crossHairPos.y = 0.01f;
+            GameObject newCrosshair = Instantiate(_bossCrosshair, crossHairPos, Quaternion.identity);
+            newCrosshair.GetComponent<BossCrosshair>().SetValues(_crosshairSpeed, _player, gameObject);
+
+            mortarCounter++;
+        }
+    }
+
+    public void TargetAquired(GameObject crossHair)
+    {
+        StartCoroutine(ShootMortar(crossHair));
+    }
+
+    IEnumerator ShootMortar(GameObject crossHair)
+    {
+        // "Shoot" into the air
+        Feedback(_mortarSmokeParticles, _mortarShotSound, _mortarSpawnL.transform);
+        Feedback(_mortarSmokeParticles, null, _mortarSpawnR.transform);
+
+        // wait
+        yield return new WaitForSeconds(_mortarShotDelay);
+
+        // spawn mortar falling straight down
+        Vector3 pos = crossHair.transform.position;
+        pos += Vector3.up * 20;
+        GameObject newMortarProjectile = Instantiate(_mortarProjectile, pos, Quaternion.identity);
+        newMortarProjectile.GetComponent<MortarProjectile>().SetValues(_mortarSpeed, crossHair, gameObject);
+    }
+
+    private void Feedback(ParticleSystem particles, AudioClip audio, Transform transform)
+    {
+        // particles
+        if (particles != null)
+        {
+            ParticleSystem _particles = Instantiate(particles, transform.position, transform.rotation);
+            _particles.Play();
+        }
+        // audio. TODO - consider Object Pooling for performance
+        if (audio != null)
+        {
+            AudioHelper.PlayClip2D(audio, 1f);
+        }
     }
     #endregion
     // ----------------------------------------------------------------------------------------------------

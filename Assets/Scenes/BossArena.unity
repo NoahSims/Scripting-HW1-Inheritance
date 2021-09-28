@@ -147,7 +147,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 17912181}
   m_LocalRotation: {x: 0.4999996, y: -0, z: -0, w: 0.8660257}
-  m_LocalPosition: {x: 0, y: 20, z: -15.2}
+  m_LocalPosition: {x: 0, y: 20.77, z: -15.13}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 139571743}
@@ -1735,6 +1735,11 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &1747036649 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8750957445156856204, guid: cee7884fed751d04faa964d9778d298d, type: 3}
+  m_PrefabInstance: {fileID: 1759316760100513514}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1785415583
 GameObject:
   m_ObjectHideFlags: 0
@@ -1926,6 +1931,11 @@ Transform:
   m_Father: {fileID: 538027382}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1924902895 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2149573914917891671, guid: cee7884fed751d04faa964d9778d298d, type: 3}
+  m_PrefabInstance: {fileID: 1759316760100513514}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1999393324
 GameObject:
   m_ObjectHideFlags: 0
@@ -2121,6 +2131,22 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 553462888}
     - target: {fileID: 1759316761228429543, guid: cee7884fed751d04faa964d9778d298d, type: 3}
+      propertyPath: _mortarSmoke
+      value: 
+      objectReference: {fileID: 8368145655126054656, guid: a818221d0f1e20b4f91958b7d728f2d3, type: 3}
+    - target: {fileID: 1759316761228429543, guid: cee7884fed751d04faa964d9778d298d, type: 3}
+      propertyPath: _mortarSpeed
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1759316761228429543, guid: cee7884fed751d04faa964d9778d298d, type: 3}
+      propertyPath: _mortarSpawnL
+      value: 
+      objectReference: {fileID: 1924902895}
+    - target: {fileID: 1759316761228429543, guid: cee7884fed751d04faa964d9778d298d, type: 3}
+      propertyPath: _mortarSpawnR
+      value: 
+      objectReference: {fileID: 1747036649}
+    - target: {fileID: 1759316761228429543, guid: cee7884fed751d04faa964d9778d298d, type: 3}
       propertyPath: _pillarSpot.z
       value: 8.3
       objectReference: {fileID: 0}
@@ -2132,6 +2158,26 @@ PrefabInstance:
       propertyPath: _movementState
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1759316761228429543, guid: cee7884fed751d04faa964d9778d298d, type: 3}
+      propertyPath: _crosshairSpeed
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1759316761228429543, guid: cee7884fed751d04faa964d9778d298d, type: 3}
+      propertyPath: _mortarShotDelay
+      value: 0.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 1759316761228429543, guid: cee7884fed751d04faa964d9778d298d, type: 3}
+      propertyPath: _mortarShotSound
+      value: 
+      objectReference: {fileID: 8300000, guid: 921d5305bf8ed8d41bef13946eff2196, type: 3}
+    - target: {fileID: 1759316761228429543, guid: cee7884fed751d04faa964d9778d298d, type: 3}
+      propertyPath: _mortarProjectile
+      value: 
+      objectReference: {fileID: 5095630369874194072, guid: c0dd521437d8fd04ebf0af3ebb593e53, type: 3}
+    - target: {fileID: 1759316761228429543, guid: cee7884fed751d04faa964d9778d298d, type: 3}
+      propertyPath: _mortarSmokeParticles
+      value: 
+      objectReference: {fileID: 8368145655126054656, guid: a818221d0f1e20b4f91958b7d728f2d3, type: 3}
     - target: {fileID: 1759316761599103069, guid: cee7884fed751d04faa964d9778d298d, type: 3}
       propertyPath: m_LocalPosition.y
       value: -0.14
