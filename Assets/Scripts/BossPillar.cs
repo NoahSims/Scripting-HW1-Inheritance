@@ -20,11 +20,24 @@ public class BossPillar : MonoBehaviour
     private float _delayStartTime;
     private float _tolerance; // the distance moved in one fixed update
 
-    private List<GameObject> children = new List<GameObject>();
+    [SerializeField] private Health _health;
+    [SerializeField] private Material _standardMaterial;
+    [SerializeField] private Material _damagedMaterial;
 
     private void Start()
     {
         _tolerance = _moveSpeed * Time.fixedDeltaTime;
+    }
+
+    private void OnEnable()
+    {
+        _health.Damaged += OnDamaged;
+    }
+
+    private void OnDisable()
+    {
+        PillarInPosition.Invoke(false);
+        _health.Damaged -= OnDamaged;
     }
 
     private void FixedUpdate()
@@ -69,35 +82,23 @@ public class BossPillar : MonoBehaviour
         }
     }
 
-    /*
-    private void OnTriggerEnter(Collider other)
-    {
-        if (_isCurentlyActive)
-        {
-            other.transform.parent = transform;
-            children.Add(other.gameObject);
-        }
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        other.transform.parent = null;
-    }
-    */
-
     public void ActivatePillar()
     {
         _isCurentlyActive = true;
     }
 
-    private void OnDisable()
+    private void OnDamaged(int ammount)
     {
-        /*
-        foreach  (GameObject obj in children)
+        StartCoroutine(FlashOnDamage());
+    }
+
+    IEnumerator FlashOnDamage()
+    {
+        if(_damagedMaterial != null)
         {
-            obj.transform.parent = null;
+            gameObject.GetComponent<MeshRenderer>().material = _damagedMaterial;
+            yield return new WaitForSeconds(0.5f);
+            gameObject.GetComponent<MeshRenderer>().material = _standardMaterial;
         }
-        */
-        PillarInPosition.Invoke(false);
     }
 }
