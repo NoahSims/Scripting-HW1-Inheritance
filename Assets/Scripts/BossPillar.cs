@@ -4,7 +4,7 @@ using UnityEngine;
 using System;
 
 /*
- *  Not gonna lie, I may have borrowed this script from another project I'm working on, just because I needed to get this
+ *  Not gonna lie, I may have borrowed parts of this script from another project I'm working on, just because I needed to get this
  *  working. I will probably clean this up later.
  */
 

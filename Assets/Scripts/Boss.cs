@@ -20,8 +20,8 @@ public class Boss : Enemy
     [SerializeField] private float _arenaMinZ;
     private int _rotationAngle = 80;
 
-    private enum movementStates { RAMPAGE, ROTATION, CHARGE, TO_PLAYER, PILLAR, PILLAR_ATTACK, WAIT};
-    [SerializeField] private movementStates _movementState = movementStates.ROTATION;
+    private enum movementStates { RAMPAGE, STRAFE, CHARGE, PILLAR_MOVEMENT, PILLAR_ATTACK, WAIT};
+    [SerializeField] private movementStates _movementState = movementStates.RAMPAGE;
 
     [SerializeField] private AudioClip _smallCrashSound = null;
 
@@ -55,7 +55,7 @@ public class Boss : Enemy
     #region Unity Events
     private void Start()
     {
-        _tolerance = 3;
+        _tolerance = 3; // I know this shouldn't be hard coded, but I wasn't getting it to work consistently otherwise
         _chargeHeading = getRandomHeading();
         _rb.constraints = RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
     }
@@ -79,7 +79,7 @@ public class Boss : Enemy
         {
             if (!_isPillarUsed && _bossHealth.CurrentHealth <= _bossHealth.MaxHealth / 2)
             {
-                _movementState = movementStates.PILLAR;
+                _movementState = movementStates.PILLAR_MOVEMENT;
                 _isPillarUsed = true;
             }
             else
@@ -87,7 +87,7 @@ public class Boss : Enemy
                 int coin = (int)Mathf.Round(Random.value);
                 if (coin == 1)
                 {
-                    _movementState = movementStates.ROTATION;
+                    _movementState = movementStates.STRAFE;
                 }
             }
         }
@@ -95,12 +95,12 @@ public class Boss : Enemy
 
     private void OnPillarInPosition(bool pillarAlive)
     {
-        if(pillarAlive)
+        if(pillarAlive) // pillar has finished rising out of the ground, boss can start shooting
         {
             _rb.constraints = RigidbodyConstraints.FreezePosition | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
             _movementState = movementStates.PILLAR_ATTACK;
         }
-        else
+        else // pillar has been destroyed, boss should return to standard movement pattern
         {
             _rb.constraints = RigidbodyConstraints.None;
             PillarDown.Invoke();
@@ -118,16 +118,13 @@ public class Boss : Enemy
             case movementStates.RAMPAGE:
                 RampageMovement();
                 break;
-            case movementStates.ROTATION:
-                RotationMovement();
+            case movementStates.STRAFE:
+                CircleStrafeMovement();
                 break;
             case movementStates.CHARGE:
                 ChargeAttack();
                 break;
-            //case movementStates.TO_PLAYER:
-                //MoveTowardsPlayer();
-                //break;
-            case movementStates.PILLAR:
+            case movementStates.PILLAR_MOVEMENT:
                 MoveToPillar();
                 break;
             case movementStates.PILLAR_ATTACK:
@@ -141,6 +138,13 @@ public class Boss : Enemy
     #endregion
     // ----------------------------------------------------------------------------------------------------
     #region Rampage Movement
+    /*
+     *  Stages:
+     *      - on starting this state, choose a random direction to start moving in
+     *      - Move in the random direction
+     *      - On hitting a wall, change direction   (this is currently using a defined set of coordinates to determine the boss's area of effect. 
+     *            If I was doing this properly, I would try to do propper collision detection, but I don't have the time for that)
+     */
 
     private Vector3 getRandomHeading()
     {
@@ -170,6 +174,7 @@ public class Boss : Enemy
         {
             _rb.MovePosition(_rb.position + (transform.forward * MoveSpeed));
         }
+        
     }
 
     private bool rotateXOnCooldown = false;
@@ -177,9 +182,10 @@ public class Boss : Enemy
     {
         if(!rotateXOnCooldown)
         {
+            rotateXOnCooldown = true;
             Feedback(null, _smallCrashSound, transform);
             Crashed.Invoke(0.1f, 0.1f);
-            rotateXOnCooldown = true;
+
             _chargeHeading.x = _chargeHeading.x * (-1);
             _chargeHeading = Quaternion.Euler(0, Random.Range(-30, 30), 0) * _chargeHeading;
 
@@ -193,10 +199,10 @@ public class Boss : Enemy
     {
         if (!rotateZOnCooldown)
         {
+            rotateZOnCooldown = true;
             Feedback(null, _smallCrashSound, transform);
             Crashed.Invoke(0.1f, 0.1f);
-            rotateZOnCooldown = true;
-            //_rampageHeading = new Vector3(_rampageHeading.x, _rampageHeading.y, _rampageHeading.z * (-1));
+            
             _chargeHeading.z = _chargeHeading.z * (-1);
             _chargeHeading = Quaternion.Euler(0, Random.Range(-30, 30), 0) * _chargeHeading;
 
@@ -207,7 +213,18 @@ public class Boss : Enemy
     #endregion
     // ----------------------------------------------------------------------------------------------------
     #region Charge Attack
-    private void RotationMovement()
+    /*
+     *  Stages:
+     *      - Boss circle strafes the player for some ammount of time (currently a random time between 2 and 4 seconds)
+     *          - during circle strafing, if boss runs into wall, change directions
+     *      - Stop moving briefly and telegraph attack
+     *      - Charge at the player. Use player location at beginning of telegraph as charge target so that the player can use the telegraph as time to dodge
+     *      - Keep moving past the player until running into the wall
+     *      - On hitting the wall, become stunned for a couple of seconds
+     *      - Return to standard movement state
+     */
+
+    private void CircleStrafeMovement()
     {
         StartCoroutine(StartChargeAttackSequence());
         // get heading
@@ -220,10 +237,8 @@ public class Boss : Enemy
 
         //don't run into wall
         Vector3 move = _rb.position + (transform.forward * MoveSpeed * 5);
-        if (move.x > _arenaMaxX || move.x < _arenaMinX || move.z > _arenaMaxZ || move.z < _arenaMinZ)
+        if (!isFlipRotationOnCooldown && (move.x > _arenaMaxX || move.x < _arenaMinX || move.z > _arenaMaxZ || move.z < _arenaMinZ))
         {
-            //_movementState = movementStates.TO_PLAYER;
-            //StartCoroutine(TurnAwayFromWall());
             StartCoroutine(FlipRotationCooldown());
         }
         else
@@ -231,6 +246,7 @@ public class Boss : Enemy
         {
             _rb.MovePosition(_rb.position + (transform.forward * MoveSpeed));
         }
+        
     }
 
     private bool isFlipRotationOnCooldown = false;
@@ -246,8 +262,6 @@ public class Boss : Enemy
             isFlipRotationOnCooldown = false;
         }
     }
-
-    
 
     private bool isChargeAttackSequenceStarted = false;
     IEnumerator StartChargeAttackSequence()
@@ -298,32 +312,43 @@ public class Boss : Enemy
     IEnumerator EndChargeAttack()
     {
         _movementState = movementStates.WAIT;
-        //_bossHealth.IsInvincible = true;
         Feedback(_crashParticles, _crashSound, transform);
         Crashed.Invoke(_crashCameraShakeDuration, _crashCameraShakeMagnitude);
+
         yield return new WaitForSeconds(2f);
-        //_bossHealth.IsInvincible = false;
+
+        _rb.constraints = RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
         _movementState = movementStates.RAMPAGE;
     }
     #endregion
     // ----------------------------------------------------------------------------------------------------
     #region Pillar Attack
+    /*
+     *  Stages:
+     *      - Boss moves to designated pillar location (right now there's only one set location, I considered giving the boss more control over it, but I didn't have time for it)
+     *      - Pillar rises out of the ground, lifting the boss
+     *      - while on pillar, model rotates to face player, and crosshairs are spawned that follow the player
+     *      - when the crosshair finds the player, it tells the boss to fire a mortar
+     *      - When the pillar is destroyed, the boss falls to the ground and is briefly stunned
+     *      - Boss returns to previous movement pattern
+     */
+
     private void MoveToPillar()
     {
         Vector3 heading = _pillarSpot - transform.position;
         heading.y = transform.position.y; // ignore vertical
-        if (heading.magnitude > _tolerance) // if close to target, just warp to the target
+        if (heading.magnitude > _tolerance) // if far from target, just move to the target
         {
             heading = Vector3.Normalize(heading);
             _rb.MoveRotation(Quaternion.Lerp(_rb.rotation, Quaternion.LookRotation(heading), 0.1f));
             _rb.MovePosition(_rb.position + (transform.forward * MoveSpeed));
         }
-        else
+        else // when close enough, warp to it and stop using MoveToPillar
         {
             _rb.MovePosition(_pillarSpot);
             _rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
             _movementState = movementStates.WAIT;
-            _pillar.GetComponent<BossPillar>().ActivatePillar();
+            _pillar.GetComponent<BossPillar>().ActivatePillar();  // bring the pillar out of the floor
             Feedback(null, _buildPillarSound, transform);
             Crashed.Invoke(0.5f, 1f);
         }
@@ -336,7 +361,6 @@ public class Boss : Enemy
         transform.LookAt(heading);
     }
 
-    private int mortarCounter = 0;
     private float timeLastFired = 0f;
     private void MortarFireSequence()
     {
@@ -348,11 +372,10 @@ public class Boss : Enemy
             crossHairPos.y = 0.01f;
             GameObject newCrosshair = Instantiate(_bossCrosshair, crossHairPos, Quaternion.identity);
             newCrosshair.GetComponent<BossCrosshair>().SetValues(_crosshairSpeed, _player, gameObject);
-
-            mortarCounter++;
         }
     }
 
+    // called by the crosshair when it finds its target. This could probably be organized better, but I was running out of time
     public void TargetAquired(GameObject crossHair)
     {
         StartCoroutine(ShootMortar(crossHair));
@@ -374,6 +397,8 @@ public class Boss : Enemy
         newMortarProjectile.GetComponent<MortarProjectile>().SetValues(_mortarSpeed, crossHair, gameObject);
     }
 
+    // when the pillar is destroyed, screenshake should happen when the boss hits the ground. If I was doing this properly, I would probably want to use
+    // actual collision detection to find when the boss is on the gound. But this works well enough that the player wouldn't notice
     IEnumerator DelayedScreenShake()
     {
         yield return new WaitForSeconds(0.3f);
@@ -396,24 +421,6 @@ public class Boss : Enemy
             AudioHelper.PlayClip2D(audio, 1f);
         }
     }
-    #endregion
-    // ----------------------------------------------------------------------------------------------------
-    #region No Longer Used
-    /*
-    IEnumerator TurnAwayFromWall()
-    {
-        yield return new WaitForSeconds(0.5f);
-        _movementState = movementStates.ROTATION;
-    }
-    private void MoveTowardsPlayer()
-    {
-        Vector3 heading = _player.transform.position - transform.position;
-        heading.y = 0; // ignore vertical
-        heading = Vector3.Normalize(heading);
-        _rb.MoveRotation(Quaternion.Lerp(_rb.rotation, Quaternion.LookRotation(heading), 0.1f));
-        _rb.MovePosition(_rb.position + (transform.forward * MoveSpeed));
-    }
-    */
     #endregion
     // ----------------------------------------------------------------------------------------------------
 }

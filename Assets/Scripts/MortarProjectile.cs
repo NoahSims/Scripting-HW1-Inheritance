@@ -15,7 +15,6 @@ public class MortarProjectile : MonoBehaviour
     private GameObject _boss = null;
     [SerializeField] private ParticleSystem _impactParticles = null;
     [SerializeField] private AudioClip _impactSound = null;
-    //[SerializeField] private Material _mTargetAquired = null;
 
     public void SetValues(float speed, GameObject target, GameObject boss)
     {

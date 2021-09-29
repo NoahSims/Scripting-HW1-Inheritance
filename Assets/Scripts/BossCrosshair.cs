@@ -2,6 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+ * Crosshair moves to it's target (the player), then messages the boss with the crosshair's 
+ * location, telling the boss where to shoot
+ */
+
 public class BossCrosshair : MonoBehaviour
 {
     private bool _isMoving = true;
